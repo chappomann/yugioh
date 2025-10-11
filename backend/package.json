@@ -7,9 +7,9 @@
     "scripts": {
         "start": "node dist/src/app.js",
         "dev": "tsx watch src/app.ts",
-        "build": "rm -rf dist && npm i && tsc",
+        "build": "tsc",
         "build:all": "npm run build && npm run build:frontend",
-        "build:frontend": "cd ../frontend && npm install && npm run build",
+        "build:frontend": "cd ../frontend && npm run build",
         "dev:frontend": "cd frontend && npm run dev",
         "db:init": "tsx src/utils/database-initializer.ts",
         "db:import": "tsx src/utils/card-importer.ts -arg=importFromAPI",
