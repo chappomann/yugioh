@@ -1,0 +1,50 @@
+{
+    "name": "yugioh-app",
+    "version": "1.0.0",
+    "description": "Yugioh card collection viewer web application",
+    "type": "module",
+    "main": "dist/src/app.js",
+    "scripts": {
+        "start": "node dist/src/app.js",
+        "dev": "tsx watch src/app.ts",
+        "build": "rm -rf dist && npm i && tsc",
+        "build:all": "npm run build && npm run build:frontend",
+        "build:frontend": "cd ../frontend && npm install && npm run build",
+        "dev:frontend": "cd frontend && npm run dev",
+        "db:init": "tsx src/database.ts",
+        "db:import": "tsx src/helpers/card-importer.ts",
+        "db:import:fresh": "ts-node card-importer.ts -arg=importFreshData",
+        "db:stats:import": "ts-node card-importer.ts -arg=getImportStats",
+        "db:stats:image": "ts-node card-importer.ts -arg=getImageStats",
+        "clean:images": "ts-node card-importer.ts -arg=cleanupOrphanedImages",
+        "seed": "npm run build && npm run db:init && npm run db:import",
+        "reset": "rm -f ../../databases/yugioh.sqlite && npm run seed"
+    },
+    "dependencies": {
+        "body-parser": "^1.20.0",
+        "cors": "^2.8.5",
+        "express": "^4.18.0",
+        "multer": "^2.0.1",
+        "sqlite3": "^5.1.0"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^4.17.23",
+        "@types/multer": "^1.4.13",
+        "@types/node": "^20.19.7",
+        "@types/sqlite3": "^3.1.11",
+        "nodemon": "^3.1.10",
+        "ts-node": "^10.9.2",
+        "tsx": "^4.0.0",
+        "typescript": "^5.8.3"
+    },
+    "keywords": [
+        "yugioh",
+        "cards",
+        "collection",
+        "react",
+        "typescript"
+    ],
+    "author": "",
+    "license": "ISC"
+}
