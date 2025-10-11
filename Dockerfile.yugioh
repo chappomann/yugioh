@@ -33,9 +33,6 @@ COPY --from=builder /app .
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
-# Create directories and set permissions
-RUN chown -R nextjs:nodejs /app
-
 # Create entrypoint script
 RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
     echo 'echo "Starting Yu-Gi-Oh application..."' >> /app/entrypoint.sh && \
@@ -51,6 +48,8 @@ RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
     echo 'exec npm run start' >> /app/entrypoint.sh
 
 RUN chmod +x /app/entrypoint.sh && \
+    chown nextjs:nodejs /app/backend/data && \
+    chown nextjs:nodejs /app/public/images && \
     chown nextjs:nodejs /app/entrypoint.sh
 
 # Change ownership of app directory
