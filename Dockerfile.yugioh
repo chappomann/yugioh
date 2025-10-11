@@ -33,7 +33,8 @@ RUN npm ci --only=production && \
 # Copy built backend from builder stage
 COPY --from=builder /app/backend/dist ./dist
 
-# Copy built frontend from builder stage - check if it exists first
+# Copy built frontend to both expected locations
+COPY --from=builder /app/frontend/dist ./frontend/dist
 COPY --from=builder /app/frontend/dist ./public
 
 # Copy environment files
