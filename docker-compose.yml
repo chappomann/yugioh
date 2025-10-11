@@ -2,7 +2,12 @@ version: "3.8"
 
 services:
   yugioh-app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.yugioh
+      args:
+        - GIT_REPO=https://github.com/chappomann/yugioh.git
+        - GIT_BRANCH=develop
     container_name: yugioh_collection
     restart: unless-stopped
     ports:

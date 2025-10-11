@@ -28,64 +28,8 @@ import { CardDataDownloader } from './card-data-downloader.js';
 import { DatabaseImporter } from './database-importer.js';
 import { ImageDownloader, type ImageDownloadConfig } from './image-downloader.js';
 import { YugiohDatabase } from '../database.js';
+import { CardData, YugiohApiResponse, NormalizedCard, ImportResult, ImportStats } from '../types/shared.js';
 import path from 'path';
-
-interface CardData {
-    id: number;
-    name: string;
-    type?: string;
-    race?: string;
-    archetype?: string;
-    atk?: number;
-    def?: number;
-    level?: number;
-    attribute?: string;
-    desc?: string;
-    description?: string;
-    quantity?: number; // Added quantity field
-    card_images?: Array<{
-        image_url?: string;
-        image_url_small?: string;
-    }>;
-    card_prices?: Array<{
-        tcgplayer_price?: string;
-        cardmarket_price?: string;
-        ebay_price?: string;
-    }>;
-}
-
-interface ApiResponse {
-    data: CardData[];
-}
-
-interface NormalizedCard {
-    card_id: string;
-    name: string;
-    type: string | null;
-    race: string | null;
-    archetype: string | null;
-    atk: number | null;
-    def: number | null;
-    level: number | null;
-    attribute: string | null;
-    description: string;
-    image_url: string | null;
-    price: number | null;
-    quantity: number; // Added quantity field
-}
-
-interface ImportResult {
-    imported: number;
-    errors: number;
-    imagesDownloaded?: number;
-    imageErrors?: number;
-}
-
-interface ImportStats {
-    totalCards: number;
-    cardTypes: Array<{ type: string; count: number }>;
-    attributes: Array<{ attribute: string; count: number }>;
-}
 
 export class CardImporter {
     private dataDownloader: CardDataDownloader;
@@ -103,7 +47,7 @@ export class CardImporter {
     /**
      * Download fresh card data from the API
      */
-    async downloadFreshCardData(): Promise<ApiResponse> {
+    async downloadFreshCardData(): Promise<YugiohApiResponse> {
         return await this.dataDownloader.downloadFreshCardData();
     }
 

@@ -18,61 +18,7 @@
  */
 
 import { YugiohDatabase } from '../database.js';
-
-interface CardData {
-    id: number;
-    name: string;
-    type?: string;
-    race?: string;
-    archetype?: string;
-    atk?: number;
-    def?: number;
-    level?: number;
-    attribute?: string;
-    desc?: string;
-    description?: string;
-    quantity?: number; // Added quantity field
-    card_images?: Array<{
-        image_url?: string;
-        image_url_small?: string;
-    }>;
-    card_prices?: Array<{
-        tcgplayer_price?: string;
-        cardmarket_price?: string;
-        ebay_price?: string;
-    }>;
-}
-
-interface ApiResponse {
-    data: CardData[];
-}
-
-interface NormalizedCard {
-    card_id: string;
-    name: string;
-    type: string | null;
-    race: string | null;
-    archetype: string | null;
-    atk: number | null;
-    def: number | null;
-    level: number | null;
-    attribute: string | null;
-    description: string;
-    image_url: string | null;
-    price: number | null;
-    quantity: number; // Added quantity field
-}
-
-interface ImportResult {
-    imported: number;
-    errors: number;
-}
-
-interface ImportStats {
-    totalCards: number;
-    cardTypes: Array<{ type: string; count: number }>;
-    attributes: Array<{ attribute: string; count: number }>;
-}
+import { CardData, YugiohApiResponse, NormalizedCard, ImportResult, ImportStats } from '../types/shared.js';
 
 export class DatabaseImporter {
     private db: YugiohDatabase;
@@ -91,7 +37,7 @@ export class DatabaseImporter {
         }
     }
 
-    async importCards(cardData: ApiResponse): Promise<ImportResult> {
+    async importCards(cardData: YugiohApiResponse): Promise<ImportResult> {
         try {
             if (!cardData.data || !Array.isArray(cardData.data)) {
                 throw new Error('Invalid card data format');

@@ -18,34 +18,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-
-interface CardData {
-    id: number;
-    name: string;
-    type?: string;
-    race?: string;
-    archetype?: string;
-    atk?: number;
-    def?: number;
-    level?: number;
-    attribute?: string;
-    desc?: string;
-    description?: string;
-    quantity?: number; // Added quantity field
-    card_images?: Array<{
-        image_url?: string;
-        image_url_small?: string;
-    }>;
-    card_prices?: Array<{
-        tcgplayer_price?: string;
-        cardmarket_price?: string;
-        ebay_price?: string;
-    }>;
-}
-
-interface ApiResponse {
-    data: CardData[];
-}
+import { CardData, YugiohApiResponse } from '../types/shared.js';
 
 export class CardDataDownloader {
     private apiUrl: string = 'https://db.ygoprodeck.com/api/v7/cardinfo.php';
@@ -55,7 +28,7 @@ export class CardDataDownloader {
         this.cardDbPath = cardDbPath || path.join(process.cwd(), '../../databases/carddb.json');
     }
 
-    async downloadFreshCardData(): Promise<ApiResponse> {
+    async downloadFreshCardData(): Promise<YugiohApiResponse> {
         try {
             console.log('Downloading fresh card data from YGOPRODeck API...');
 
@@ -63,7 +36,7 @@ export class CardDataDownloader {
             let existingQuantities: Map<number, number> = new Map();
             try {
                 const existingData = await this.loadCardData();
-                existingData.data.forEach(card => {
+                existingData.data.forEach((card: CardData) => {
                     if (card.id && card.quantity !== undefined) {
                         existingQuantities.set(card.id, card.quantity);
                     }
@@ -79,22 +52,22 @@ export class CardDataDownloader {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const rawCardData: ApiResponse = await response.json();
+            const rawCardData: YugiohApiResponse = await response.json();
 
             if (!this.validateApiResponse(rawCardData)) {
                 throw new Error('Invalid API response format');
             }
 
             // Preserve existing quantities or default to 0 for new cards
-            const cardData: ApiResponse = {
-                data: rawCardData.data.map(card => ({
+            const cardData: YugiohApiResponse = {
+                data: rawCardData.data.map((card: CardData) => ({
                     ...card,
                     quantity: existingQuantities.get(card.id) || 0
                 }))
             };
 
             await this.saveCardData(cardData);
-            const preservedCount = cardData.data.filter(card => existingQuantities.has(card.id)).length;
+            const preservedCount = cardData.data.filter((card: CardData) => existingQuantities.has(card.id)).length;
             console.log(`Downloaded ${cardData.data.length} cards and saved to carddb.json`);
             console.log(`Preserved quantities for ${preservedCount} existing cards`);
 
@@ -105,11 +78,11 @@ export class CardDataDownloader {
         }
     }
 
-    async loadCardData(): Promise<ApiResponse> {
+    async loadCardData(): Promise<YugiohApiResponse> {
         try {
             console.log('Loading card data from local file...');
             const fileContent = await fs.readFile(this.cardDbPath, 'utf8');
-            const cardData: ApiResponse = JSON.parse(fileContent);
+            const cardData: YugiohApiResponse = JSON.parse(fileContent);
 
             if (!this.validateApiResponse(cardData)) {
                 throw new Error('Invalid card data format in local file');
@@ -131,7 +104,7 @@ export class CardDataDownloader {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const data: ApiResponse = await response.json();
+            const data: YugiohApiResponse = await response.json();
 
             if (data.data && data.data.length > 0) {
                 return data.data[0];
@@ -144,7 +117,7 @@ export class CardDataDownloader {
         }
     }
 
-    private async saveCardData(cardData: ApiResponse): Promise<void> {
+    private async saveCardData(cardData: YugiohApiResponse): Promise<void> {
         try {
             // Ensure the databases directory exists
             const dbDir = path.dirname(this.cardDbPath);
@@ -157,7 +130,7 @@ export class CardDataDownloader {
         }
     }
 
-    private validateApiResponse(data: any): data is ApiResponse {
+    private validateApiResponse(data: any): data is YugiohApiResponse {
         return data &&
             typeof data === 'object' &&
             Array.isArray(data.data) &&
