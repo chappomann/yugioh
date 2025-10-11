@@ -29,13 +29,6 @@ RUN apk add --no-cache git wget
 # Copy the entire built application
 COPY --from=builder /app .
 
-# Install only production dependencies for backend
-WORKDIR /app/backend
-RUN npm ci --only=production
-
-# Go back to root
-WORKDIR /app
-
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
