@@ -25,6 +25,7 @@
     },
     "include": [
         "src/**/*.ts",
+        "../utils/image-downloader.ts",
     ],
     "exclude": [
         "src/utils/node_modules",

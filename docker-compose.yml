@@ -12,10 +12,8 @@ services:
     restart: unless-stopped
     ports:
       - "3001:3001"
-    environment:
-      - NODE_ENV=production
-      - PORT=3001
-      - DATABASE_PATH=/app/data/yugioh.sqlite
+    env_file:
+      - ./backend/.env.production
       - TZ=Etc/UTC
     volumes:
       - /mnt/data/yugioh/database:/app/data

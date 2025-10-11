@@ -1,13 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { YugiohDatabase } from '../database.js';
-import { CardImporter } from '../utils/card-importer.js';
+import { CardImportService } from '../utils/card-importer.js';
 import { successResponse, errorResponse, ApiResponse } from '../types/api.js';
 import { validateQuery, validateParams, validateBody, commonSchemas } from '../middleware/validation.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 
 const router = Router();
 const db = new YugiohDatabase();
-const importer = new CardImporter();
+const importService = new CardImportService();
 
 /**
  * Get card import statistics.
@@ -16,7 +16,7 @@ const importer = new CardImporter();
  */
 router.get('/stats', async (req: Request, res: Response): Promise<void> => {
     try {
-        const stats = await importer.getImportStats();
+        const stats = await importService.getImportStats();
         res.json(successResponse(stats, 'Card statistics retrieved successfully'));
     } catch (error) {
         console.error('Error fetching card stats:', error);

@@ -25,7 +25,9 @@ export class CardDataDownloader {
     private cardDbPath: string;
 
     constructor(cardDbPath?: string) {
-        this.cardDbPath = cardDbPath || path.join(process.cwd(), '../../databases/carddb.json');
+        this.cardDbPath = cardDbPath ||
+            process.env.CARDDB_PATH ||
+            path.join(process.cwd(), '../../databases/carddb.json');
     }
 
     async downloadFreshCardData(): Promise<YugiohApiResponse> {
