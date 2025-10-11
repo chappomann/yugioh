@@ -34,8 +34,7 @@ RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
 # Create directories and set permissions
-RUN mkdir -p /app/backend/data /app/public/images && \
-    chown -R nextjs:nodejs /app
+RUN chown -R nextjs:nodejs /app
 
 # Create entrypoint script
 RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
