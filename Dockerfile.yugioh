@@ -12,9 +12,6 @@ ARG GIT_REPO=https://github.com/chappomann/yugioh.git
 ARG GIT_BRANCH=develop
 RUN git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPO} .
 
-# Install dependencies for both frontend and backend with clean install
-# RUN npm install
-
 # Clean install for frontend to fix rollup issue
 WORKDIR /app/frontend
 RUN rm -rf node_modules package-lock.json && \
@@ -39,10 +36,10 @@ WORKDIR /app
 RUN apk add --no-cache git wget
 
 # Copy package.json and install production dependencies
-# COPY --from=builder /app/backend/package*.json ./
-# RUN npm ci --only=production && \
-#     npm install tsx && \
-#     npm cache clean --force
+COPY --from=builder /app/backend/package*.json ./
+RUN npm ci --only=production && \
+    npm install tsx && \
+    npm cache clean --force
 
 # Copy built backend from builder stage
 COPY --from=builder /app/backend/dist ./dist
@@ -51,6 +48,10 @@ COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/frontend/dist ./frontend/dist
 COPY --from=builder /app/frontend/dist ./public
 
+# Also copy to root level in case backend looks for absolute path
+RUN mkdir -p /frontend
+COPY --from=builder /app/frontend/dist /frontend/dist
+
 # Copy environment files
 COPY --from=builder /app/backend/.env.production ./.env
 
@@ -58,12 +59,13 @@ COPY --from=builder /app/backend/.env.production ./.env
 COPY --from=builder /app/backend/database ./database
 
 # Create non-root user for security
-# RUN addgroup -g 1001 -S nodejs && \
-#     adduser -S nextjs -u 1001
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
 
 # Create directories and set permissions
-# RUN mkdir -p /app/data /app/public/images && \
-#     chown -R nextjs:nodejs /app
+RUN mkdir -p /app/data /app/public/images && \
+    chown -R nextjs:nodejs /app && \
+    chown -R nextjs:nodejs /frontend
 
 # Create entrypoint script - fixed syntax
 RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
