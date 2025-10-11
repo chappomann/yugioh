@@ -58,12 +58,12 @@ COPY --from=builder /app/backend/.env.production ./.env
 COPY --from=builder /app/backend/database ./database
 
 # Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+# RUN addgroup -g 1001 -S nodejs && \
+#     adduser -S nextjs -u 1001
 
 # Create directories and set permissions
-RUN mkdir -p /app/data /app/public/images && \
-    chown -R nextjs:nodejs /app
+# RUN mkdir -p /app/data /app/public/images && \
+#     chown -R nextjs:nodejs /app
 
 # Create entrypoint script - fixed syntax
 RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
