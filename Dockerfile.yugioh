@@ -25,13 +25,18 @@ RUN apk add --no-cache git wget
 
 # Copy package.json and install production dependencies
 COPY --from=builder /app/backend/package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --only=production && \
+    npm install tsx && \
+    npm cache clean --force
 
 # Copy built backend from builder stage
 COPY --from=builder /app/backend/dist ./dist
 
 # Copy built frontend from builder stage
 COPY --from=builder /app/frontend/dist ./frontend/dist
+
+# Copy environment files
+COPY --from=builder /app/backend/.env.production ./.env
 
 # Copy database directory (if needed)
 COPY --from=builder /app/backend/database ./database
@@ -40,8 +45,30 @@ COPY --from=builder /app/backend/database ./database
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
+# Create directories and set permissions
+RUN mkdir -p /app/data /app/public/images && \
+    chown -R nextjs:nodejs /app
+
+# Create entrypoint script
+RUN cat > /app/entrypoint.sh << 'EOF'
+#!/bin/sh
+echo "Starting Yu-Gi-Oh application..."
+
+# Check if database exists, if not initialize
+if [ ! -f "/app/data/yugioh.sqlite" ]; then
+    echo "Database not found, initializing..."
+    npm run docker:setup
+    echo "Database initialization completed"
+fi
+
+# Start the application
+exec npm start
+EOF
+
+RUN chmod +x /app/entrypoint.sh && \
+    chown nextjs:nodejs /app/entrypoint.sh
+
 # Change ownership of app directory
-RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # Expose port
@@ -52,4 +79,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["/app/entrypoint.sh"]

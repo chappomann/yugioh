@@ -15,19 +15,35 @@ config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
 
-// Security middleware
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https:", "http:"],
-            scriptSrc: ["'self'"],
+// Security middleware - Environment-based configuration
+const isDevelopment = process.env.NODE_ENV === 'development';
+console.log(`Running in ${isDevelopment ? 'DEVELOPMENT' : 'PRODUCTION'} mode`);
+console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+
+if (isDevelopment) {
+    // Development: Relaxed security for HTTP connections
+    console.log('Using development security settings (CSP disabled)');
+    app.use(helmet({
+        contentSecurityPolicy: false,
+        hsts: false,
+    }));
+} else {
+    // Production: Full security with HTTPS
+    console.log('Using production security settings (CSP enabled)');
+    app.use(helmet({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+                fontSrc: ["'self'", "https://fonts.gstatic.com"],
+                imgSrc: ["'self'", "data:", "https:", "http:"],
+                scriptSrc: ["'self'"],
+            },
         },
-    },
-}));
+    }));
+}
 
 // Compression middleware
 app.use(compression());
@@ -56,7 +72,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Serve static files from React build
-app.use(express.static(path.join(process.cwd(), '../frontend/dist')));
+const frontendPath = path.join(process.cwd(), '../frontend/dist');
+console.log('Serving static files from:', frontendPath);
+app.use(express.static(frontendPath));
 
 // API routes
 app.use('/api', apiRoutes);
@@ -67,15 +85,19 @@ app.get('*', (req: Request, res: Response) => {
     if (req.path.startsWith('/api')) {
         return notFoundHandler(req, res);
     }
-    res.sendFile(path.join(process.cwd(), '../frontend/dist/index.html'));
+
+    const indexPath = path.join(frontendPath, 'index.html');
+    console.log('Serving index.html from:', indexPath);
+    res.sendFile(indexPath);
 });
 
 // Global error handler (must be last)
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), HOST, () => {
     console.log(`Yugioh app server running on port ${PORT}`);
     console.log(`API endpoints available at http://localhost:${PORT}/api`);
+    console.log(`Server accessible from network at http://${HOST}:${PORT}`);
 });
 
 // Graceful shutdown handling
