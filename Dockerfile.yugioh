@@ -50,20 +50,19 @@ RUN mkdir -p /app/data /app/public/images && \
     chown -R nextjs:nodejs /app
 
 # Create entrypoint script
-RUN cat > /app/entrypoint.sh << 'EOF'
-#!/bin/sh
-echo "Starting Yu-Gi-Oh application..."
-
-# Check if database exists, if not initialize
-if [ ! -f "/app/data/yugioh.sqlite" ]; then
-    echo "Database not found, initializing..."
-    npm run docker:setup
-    echo "Database initialization completed"
-fi
-
-# Start the application
-exec npm start
-EOF
+RUN cat > /app/entrypoint.sh << 'EOF' && \
+    echo '#!/bin/sh' > /app/entrypoint.sh && \
+    echo 'echo "Starting Yu-Gi-Oh application..."' >> /app/entrypoint.sh && \
+    echo '' >> /app/entrypoint.sh && \
+    echo '# Check if database exists, if not initialize' >> /app/entrypoint.sh && \
+    echo 'if [ ! -f "/app/data/yugioh.sqlite" ]; then' >> /app/entrypoint.sh && \
+    echo '    echo "Database not found, initializing..."' >> /app/entrypoint.sh && \
+    echo '    npm run docker:setup' >> /app/entrypoint.sh && \
+    echo '    echo "Database initialization completed"' >> /app/entrypoint.sh && \
+    echo 'fi' >> /app/entrypoint.sh && \
+    echo '' >> /app/entrypoint.sh && \
+    echo '# Start the application' >> /app/entrypoint.sh && \
+    echo 'exec npm start' >> /app/entrypoint.sh
 
 RUN chmod +x /app/entrypoint.sh && \
     chown nextjs:nodejs /app/entrypoint.sh
