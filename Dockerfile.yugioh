@@ -26,33 +26,42 @@ WORKDIR /app
 # Install git and wget for health checks
 RUN apk add --no-cache git wget
 
-# Copy the entire built application
-COPY --from=builder /app .
-
-# Create non-root user for security
+# Create non-root user FIRST (before copying files)
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
-# Create entrypoint script
+# Copy built files with correct ownership from the start
+COPY --from=builder --chown=nextjs:nodejs /app/backend/dist ./dist
+COPY --from=builder --chown=nextjs:nodejs /app/frontend/dist ./frontend/dist
+COPY --from=builder --chown=nextjs:nodejs /app/backend/package*.json ./
+COPY --from=builder --chown=nextjs:nodejs /app/backend/.env.production ./.env
+COPY --from=builder --chown=nextjs:nodejs /app/backend/database ./database
+
+# Install only production dependencies
+USER root
+RUN npm ci --only=production && npm cache clean --force
+
+# Create directories with correct ownership
+RUN mkdir -p /app/data /app/public/images && \
+    chown -R nextjs:nodejs /app/data /app/public
+
+# Create entrypoint script with correct ownership
 RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
     echo 'echo "Starting Yu-Gi-Oh application..."' >> /app/entrypoint.sh && \
     echo '' >> /app/entrypoint.sh && \
     echo '# Check if database exists, if not initialize' >> /app/entrypoint.sh && \
-    echo 'if [ ! -f "/app/backend/data/yugioh.sqlite" ]; then' >> /app/entrypoint.sh && \
+    echo 'if [ ! -f "/app/data/yugioh.sqlite" ]; then' >> /app/entrypoint.sh && \
     echo '    echo "Database not found, initializing..."' >> /app/entrypoint.sh && \
     echo '    npm run seed' >> /app/entrypoint.sh && \
     echo '    echo "Database initialization completed"' >> /app/entrypoint.sh && \
     echo 'fi' >> /app/entrypoint.sh && \
     echo '' >> /app/entrypoint.sh && \
-    echo '# Start the application using monorepo command' >> /app/entrypoint.sh && \
-    echo 'exec npm run start' >> /app/entrypoint.sh
-
-RUN chmod +x /app/entrypoint.sh && \
-    chown nextjs:nodejs /app/backend/data && \
-    chown nextjs:nodejs /app/public/images && \
+    echo '# Start the application' >> /app/entrypoint.sh && \
+    echo 'exec npm start' >> /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh && \
     chown nextjs:nodejs /app/entrypoint.sh
 
-# Change ownership of app directory
+# Switch to non-root user
 USER nextjs
 
 # Expose port
