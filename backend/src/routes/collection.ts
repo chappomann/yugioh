@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { YugiohDatabase } from '../database.js';
+import { successResponse, errorResponse } from '../types/api.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 
 const router = Router();
 const db = new YugiohDatabase();
@@ -9,15 +11,10 @@ const db = new YugiohDatabase();
  * @route GET /collection/stats
  * @returns {Object} Collection statistics.
  */
-router.get('/stats', async (req: Request, res: Response) => {
-    try {
-        const stats = await db.getCollectionStats();
-        res.json({ success: true, stats });
-    } catch (error) {
-        console.error('Error fetching collection stats:', error);
-        res.status(500).json({ success: false, error: (error as Error).message });
-    }
-});
+router.get('/stats', asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const stats = await db.getCollectionStats();
+    res.json(successResponse(stats, 'Collection statistics retrieved successfully'));
+}));
 
 /**
  * Get all cards in the user's collection (quantity > 0).

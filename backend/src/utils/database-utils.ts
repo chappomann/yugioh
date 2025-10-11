@@ -181,6 +181,12 @@ export class DatabaseUtils {
                 await this.run(`CREATE INDEX IF NOT EXISTS idx_cards_attribute ON cards(attribute)`);
                 await this.run(`CREATE INDEX IF NOT EXISTS idx_cards_archetype ON cards(archetype)`);
 
+                // Composite indexes for common query patterns
+                await this.run(`CREATE INDEX IF NOT EXISTS idx_cards_quantity_name ON cards(quantity, name)`);
+                await this.run(`CREATE INDEX IF NOT EXISTS idx_cards_type_quantity ON cards(type, quantity)`);
+                await this.run(`CREATE INDEX IF NOT EXISTS idx_cards_atk_def ON cards(atk, def)`);
+                await this.run(`CREATE INDEX IF NOT EXISTS idx_cards_level_attribute ON cards(level, attribute)`);
+
                 console.log('Yugioh database tables initialized successfully');
             } else if (appName === 'friendreview') {
                 // Placeholder: Friend Review app tables

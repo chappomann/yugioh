@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+npm-debug.log*
+
+# Build outputs
+backend/dist/
+frontend/dist/
+frontend/public/assets/
+
+# Environment files
+.env.local
+.env.development.local
+.env.production.local
+
+# Version control
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+README.md
+
+# Temporary files
+*.tmp
+*.temp

@@ -12,29 +12,24 @@ import {
 } from '@mui/material'
 import { cardsApi } from '../services/api'
 import { Stats } from '../types'
+import { useApi } from '../hooks/useApi'
 
 const Dashboard: React.FC = () => {
-    const [cardStats, setCardStats] = useState<Stats | null>(null)
+    const statsApi = useApi<Stats>()
     const [collectionStats, setCollectionStats] = useState<any>(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         const fetchStats = async () => {
+            // Use the new backend stats endpoint instead of fetching all cards
+            await statsApi.execute(() => cardsApi.getStats())
+
+            // For collection stats, we'll need a separate endpoint from backend
+            // For now, using a smaller query
             try {
-                setLoading(true)
-                const [cardStatsRes, allCardsRes] = await Promise.all([
-                    cardsApi.getStats(),
-                    cardsApi.getAll({ limit: 10000 }) // Get all cards to calculate collection stats
-                ])
+                const allCardsRes = await cardsApi.getAll({ limit: 100, quantity_gt: 0 }) // Only get cards in collection
 
-                if (cardStatsRes.data.success) {
-                    setCardStats(cardStatsRes.data.stats)
-                }
-
-                if (allCardsRes.data.success) {
-                    // Calculate collection stats from cards with quantity > 0
-                    const collectionCards = allCardsRes.data.cards.filter((card: any) => card.quantity && card.quantity > 0)
+                if (allCardsRes.data?.success && allCardsRes.data?.data) {
+                    const collectionCards = allCardsRes.data.data.filter((card: any) => card.quantity && card.quantity > 0)
                     const stats = {
                         uniqueCards: collectionCards.length,
                         totalItems: collectionCards.reduce((total: number, card: any) => total + (card.quantity || 0), 0),
@@ -45,17 +40,14 @@ const Dashboard: React.FC = () => {
                     setCollectionStats(stats)
                 }
             } catch (err) {
-                setError('Failed to load dashboard data')
-                console.error('Dashboard error:', err)
-            } finally {
-                setLoading(false)
+                console.error('Error fetching collection stats:', err)
             }
         }
 
         fetchStats()
     }, [])
 
-    if (loading) {
+    if (statsApi.loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
                 <CircularProgress size={60} />
@@ -63,8 +55,8 @@ const Dashboard: React.FC = () => {
         )
     }
 
-    if (error) {
-        return <Alert severity="error">{error}</Alert>
+    if (statsApi.error) {
+        return <Alert severity="error">{statsApi.error}</Alert>
     }
 
     return (
@@ -82,7 +74,7 @@ const Dashboard: React.FC = () => {
                                 Total Cards in Database
                             </Typography>
                             <Typography variant="h4">
-                                {cardStats?.totalCards?.toLocaleString() || 0}
+                                {statsApi.data?.totalCards?.toLocaleString() || 0}
                             </Typography>
                         </CardContent>
                     </MuiCard>
@@ -137,7 +129,7 @@ const Dashboard: React.FC = () => {
                             Card Types Distribution
                         </Typography>
                         <Box display="flex" flexWrap="wrap" gap={1}>
-                            {cardStats?.cardTypes?.map((type, index) => (
+                            {statsApi.data?.cardTypes?.map((type: any, index: number) => (
                                 <Chip
                                     key={index}
                                     label={`${type.type}: ${type.count}`}
@@ -156,7 +148,7 @@ const Dashboard: React.FC = () => {
                             Attributes Distribution
                         </Typography>
                         <Box display="flex" flexWrap="wrap" gap={1}>
-                            {cardStats?.attributes?.map((attr, index) => (
+                            {statsApi.data?.attributes?.map((attr: any, index: number) => (
                                 <Chip
                                     key={index}
                                     label={`${attr.attribute}: ${attr.count}`}

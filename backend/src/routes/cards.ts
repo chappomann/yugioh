@@ -1,6 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { YugiohDatabase } from '../database.js';
 import { CardImporter } from '../utils/card-importer.js';
+import { successResponse, errorResponse, ApiResponse } from '../types/api.js';
+import { validateQuery, validateParams, validateBody, commonSchemas } from '../middleware/validation.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 
 const router = Router();
 const db = new YugiohDatabase();
@@ -11,13 +14,14 @@ const importer = new CardImporter();
  * @route GET /cards/stats
  * @returns {Object} Card import statistics.
  */
-router.get('/stats', async (req: Request, res: Response) => {
+router.get('/stats', async (req: Request, res: Response): Promise<void> => {
     try {
         const stats = await importer.getImportStats();
-        res.json({ success: true, stats });
+        res.json(successResponse(stats, 'Card statistics retrieved successfully'));
     } catch (error) {
         console.error('Error fetching card stats:', error);
-        res.status(500).json({ success: false, error: (error as Error).message });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        res.status(500).json(errorResponse('Failed to fetch card statistics', errorMessage));
     }
 });
 
@@ -159,19 +163,16 @@ router.post('/', async (req: Request, res: Response) => {
  * @body {number} quantity - New quantity.
  * @returns {Object} Result of the operation.
  */
-router.put('/:id/quantity', async (req: Request, res: Response) => {
-    try {
+router.put('/:id/quantity',
+    validateParams(commonSchemas.cardId),
+    validateBody(commonSchemas.quantityUpdate),
+    asyncHandler(async (req: Request, res: Response): Promise<void> => {
         const { id } = req.params;
         const { quantity } = req.body;
-        if (typeof quantity !== 'number' || quantity < 0) {
-            return res.status(400).json({ success: false, error: 'Invalid quantity value' });
-        }
+
         const result = await db.updateCardQuantity(id, quantity);
-        res.json({ success: true, result });
-    } catch (error) {
-        console.error('Error updating card quantity:', error);
-        res.status(500).json({ success: false, error: (error as Error).message });
-    }
-});
+        res.json(successResponse(result, 'Card quantity updated successfully'));
+    })
+);
 
 export default router;

@@ -2,3 +2,7 @@ node_modules/
 package-lock.json
 public/assets/
 public/images/
+.env.local
+.env.development.local
+.env.production.local
+dist/

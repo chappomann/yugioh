@@ -86,9 +86,13 @@ interface CollectionStats {
 }
 
 export class YugiohDatabase extends DatabaseUtils {
-    constructor() {
-        const dbPath = path.join(process.cwd(), '../../../databases/yugioh.sqlite');
-        super(dbPath);
+    constructor(dbPath?: string) {
+        // Allow custom path or use environment variable with fallback
+        const finalDbPath = dbPath ||
+            process.env.DATABASE_PATH ||
+            path.join(process.cwd(), 'database/yugioh.sqlite');
+
+        super(finalDbPath);
     }
 
     // Ensure database is connected before operations
