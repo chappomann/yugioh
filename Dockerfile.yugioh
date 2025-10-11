@@ -12,17 +12,10 @@ ARG GIT_REPO=https://github.com/chappomann/yugioh.git
 ARG GIT_BRANCH=develop
 RUN git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPO} .
 
-# Clean install for frontend to fix rollup issue
-WORKDIR /app/frontend
-RUN npm install --no-optional && \
-    npm install @rollup/rollup-linux-x64-musl --save-dev
+# Install dependencies for the monorepo (installs both backend and frontend)
+RUN npm run install
 
-# Clean install for backend
-WORKDIR /app/backend
-RUN npm install
-
-# Build from root directory
-WORKDIR /app
+# Build both backend and frontend
 RUN npm run build
 
 # Production stage
@@ -30,54 +23,40 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
-# Install git (needed for potential runtime operations)
+# Install git and wget for health checks
 RUN apk add --no-cache git wget
 
-# Copy package.json and install production dependencies
-# COPY --from=builder /app/backend/package*.json ./
-# RUN npm ci --only=production && \
-#     npm install tsx && \
-#     npm cache clean --force
+# Copy the entire built application
+COPY --from=builder /app .
 
-# Copy built backend from builder stage
-COPY --from=builder /app/backend/dist ./dist
+# Install only production dependencies for backend
+WORKDIR /app/backend
+RUN npm ci --only=production
 
-# Copy built frontend to both expected locations
-COPY --from=builder /app/frontend/dist ./frontend/dist
-COPY --from=builder /app/frontend/dist ./public
-
-# Also copy to root level in case backend looks for absolute path
-RUN mkdir -p /frontend
-COPY --from=builder /app/frontend/dist /frontend/dist
-
-# Copy environment files
-COPY --from=builder /app/backend/.env.production ./.env
-
-# Copy database directory (if needed)
-COPY --from=builder /app/backend/database ./database
+# Go back to root
+WORKDIR /app
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
 # Create directories and set permissions
-RUN mkdir -p /app/data /app/public/images && \
-    chown -R nextjs:nodejs /app && \
-    chown -R nextjs:nodejs /frontend
+RUN mkdir -p /app/backend/data /app/public/images && \
+    chown -R nextjs:nodejs /app
 
-# Create entrypoint script - fixed syntax
+# Create entrypoint script
 RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
     echo 'echo "Starting Yu-Gi-Oh application..."' >> /app/entrypoint.sh && \
     echo '' >> /app/entrypoint.sh && \
     echo '# Check if database exists, if not initialize' >> /app/entrypoint.sh && \
-    echo 'if [ ! -f "/app/data/yugioh.sqlite" ]; then' >> /app/entrypoint.sh && \
+    echo 'if [ ! -f "/app/backend/data/yugioh.sqlite" ]; then' >> /app/entrypoint.sh && \
     echo '    echo "Database not found, initializing..."' >> /app/entrypoint.sh && \
-    echo '    npm run docker:setup' >> /app/entrypoint.sh && \
+    echo '    npm run seed' >> /app/entrypoint.sh && \
     echo '    echo "Database initialization completed"' >> /app/entrypoint.sh && \
     echo 'fi' >> /app/entrypoint.sh && \
     echo '' >> /app/entrypoint.sh && \
-    echo '# Start the application' >> /app/entrypoint.sh && \
-    echo 'exec npm start' >> /app/entrypoint.sh
+    echo '# Start the application using monorepo command' >> /app/entrypoint.sh && \
+    echo 'exec npm run start' >> /app/entrypoint.sh
 
 RUN chmod +x /app/entrypoint.sh && \
     chown nextjs:nodejs /app/entrypoint.sh
