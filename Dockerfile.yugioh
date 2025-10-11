@@ -14,14 +14,12 @@ RUN git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPO} .
 
 # Clean install for frontend to fix rollup issue
 WORKDIR /app/frontend
-RUN rm -rf node_modules package-lock.json && \
-    npm install --no-optional && \
+RUN npm install --no-optional && \
     npm install @rollup/rollup-linux-x64-musl --save-dev
 
 # Clean install for backend
 WORKDIR /app/backend
-RUN rm -rf node_modules package-lock.json && \
-    npm install
+RUN npm install
 
 # Build from root directory
 WORKDIR /app
