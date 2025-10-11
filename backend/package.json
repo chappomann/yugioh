@@ -17,7 +17,8 @@
         "db:stats": "tsx src/utils/card-importer.ts -arg=getImportStats",
         "system:stats": "tsx src/utils/card-importer.ts -arg=getSystemStats",
         "system:cleanup": "tsx src/utils/card-importer.ts -arg=performCleanup",
-        "docker:setup": "npm run db:init && npm run db:import",
+        "docker:setup": "npm run db:init",
+        "docker:setup:old": "npm run db:init && npm run db:import",
         "docker:health": "npm run system:stats",
         "seed": "npm run build && npm run db:init && npm run db:import",
         "reset": "rm -f ../../databases/yugioh.sqlite && npm run seed"

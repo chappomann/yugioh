@@ -12,8 +12,22 @@ ARG GIT_REPO=https://github.com/chappomann/yugioh.git
 ARG GIT_BRANCH=develop
 RUN git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPO} .
 
-# Install dependencies for both frontend and backend
-RUN npm install
+# Install dependencies for both frontend and backend with clean install
+# RUN npm install
+
+# Clean install for frontend to fix rollup issue
+WORKDIR /app/frontend
+RUN rm -rf node_modules package-lock.json && \
+    npm install --no-optional && \
+    npm install @rollup/rollup-linux-x64-musl --save-dev
+
+# Clean install for backend
+WORKDIR /app/backend
+RUN rm -rf node_modules package-lock.json && \
+    npm install
+
+# Build from root directory
+WORKDIR /app
 RUN npm run build
 
 # Production stage
