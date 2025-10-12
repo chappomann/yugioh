@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
     plugins: [react()],
+    base: './', // Use relative paths for assets
     build: {
         outDir: './dist',
         emptyOutDir: true,
@@ -18,6 +19,7 @@ export default defineConfig({
     },
     server: {
         host: true, // Accept connections from any IP
+        https: false, // Explicitly disable HTTPS
         proxy: {
             '/api': {
                 target: 'http://localhost:3001',
@@ -25,4 +27,9 @@ export default defineConfig({
             },
         },
     },
+    preview: {
+        host: true,
+        https: false, // Explicitly disable HTTPS for preview
+        port: 4173
+    }
 })
