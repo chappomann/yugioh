@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: yugioh_backend
     ports:
-      - "127.0.0.1:3000:3000" # Only bind to localhost for security
+      - "3000:3000" # Allow container-to-container communication
     volumes:
       - yugioh_database:/app/database
       - yugioh_images:/app/images
