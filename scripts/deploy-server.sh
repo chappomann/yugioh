@@ -78,10 +78,10 @@ if [ -d "$DEPLOY_DIR/.git" ]; then
     log "📥 Updating existing repository..."
     cd $DEPLOY_DIR
     git fetch origin
-    git reset --hard origin/main  # Change to 'develop' if deploying from develop branch
+    git reset --hard origin/develop  # Using develop branch
 else
     log "📥 Cloning repository..."
-    git clone $REPO_URL $DEPLOY_DIR
+    git clone -b develop $REPO_URL $DEPLOY_DIR  # Clone develop branch
     cd $DEPLOY_DIR
 fi
 

@@ -51,7 +51,7 @@ $COMPOSE_CMD -f $COMPOSE_FILE logs > "logs-backup-$(date +%Y%m%d-%H%M%S).log" 2>
 # Pull latest changes
 log "📥 Pulling latest changes..."
 git fetch origin
-git pull origin main  # Change to 'develop' if needed
+git pull origin develop  # Using develop branch
 
 # Rebuild and restart
 log "🔨 Rebuilding containers..."
