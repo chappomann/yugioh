@@ -4,7 +4,7 @@ import { Readable } from 'stream';
 
 // The YGOPRODeck API endpoint for fetching all card information.
 const API_URL = 'https://db.ygoprodeck.com/api/v7/cardinfo.php';
-const OUTPUT_FILE = '/database/yugioh_card_data.json';
+const OUTPUT_FILE = './database/yugioh_card_data.json';
 
 /**
  * Fetches card data from the YGOPRODeck API, processes it, and saves it to a file using streams.

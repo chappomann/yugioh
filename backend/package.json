@@ -5,8 +5,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
     "get-cards": "node ./scripts/cardinfo.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "get-images": "node ./scripts/images.js",
+    "sql-to-json": "sqlite3 ./database/yugioh.sqlite \"SELECT json_group_array(json_object('id', card_id, 'quantity', quantity)) FROM cards;\" > cards.json"
   },
   "keywords": [],
   "author": "",
@@ -14,5 +17,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

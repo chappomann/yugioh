@@ -8,8 +8,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const YUGIOH_CARD_DATA_JSON = '../database/yugioh_card_data.json';
-const IMAGES_DIR = '../../frontend/images/cards';
+const YUGIOH_CARD_DATA_JSON = './database/yugioh_card_data.json';
+const IMAGES_DIR = '../../frontend/public/images/cards';
 
 async function downloadImage(url, filepath) {
     return new Promise((resolve, reject) => {

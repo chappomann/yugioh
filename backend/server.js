@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const CARDS_FILE = path.join(__dirname, 'database', 'yugioh_card_data.json');
 
@@ -75,7 +75,7 @@ app.put('/api/cards/:id/quantity', async (req, res) => {
     }
 
     const cardIndex = cardsData.findIndex(c => c.id == cardId);
-    
+
     if (cardIndex === -1) {
         return res.status(404).json({ error: 'Card not found' });
     }
@@ -100,7 +100,7 @@ app.put('/api/cards/:id/quantity', async (req, res) => {
 app.post('/api/cards/:id/increment', async (req, res) => {
     const cardId = req.params.id;
     const cardIndex = cardsData.findIndex(c => c.id == cardId);
-    
+
     if (cardIndex === -1) {
         return res.status(404).json({ error: 'Card not found' });
     }
@@ -125,7 +125,7 @@ app.post('/api/cards/:id/increment', async (req, res) => {
 app.post('/api/cards/:id/decrement', async (req, res) => {
     const cardId = req.params.id;
     const cardIndex = cardsData.findIndex(c => c.id == cardId);
-    
+
     if (cardIndex === -1) {
         return res.status(404).json({ error: 'Card not found' });
     }
@@ -289,7 +289,7 @@ app.get('/', (req, res) => {
 // Start server
 app.listen(port, '0.0.0.0', () => {
     console.log(`🚀 Server is running at http://localhost:${port}`);
-    
+
     // Get local IP
     import('os').then(({ networkInterfaces }) => {
         const nets = networkInterfaces();

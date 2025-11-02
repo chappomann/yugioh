@@ -1,0 +1,22 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev)
+RUN npm install
+
+# Copy application files
+COPY . .
+
+# Create directories
+RUN mkdir -p database images
+
+EXPOSE 3000
+
+# Use nodemon for development
+RUN npm install -g nodemon
+
+CMD ["nodemon", "server.js"]

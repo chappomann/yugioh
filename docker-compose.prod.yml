@@ -1,0 +1,95 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: yugioh_backend
+    ports:
+      - "127.0.0.1:3000:3000" # Only bind to localhost for security
+    volumes:
+      - yugioh_database:/app/database
+      - yugioh_images:/app/images
+      - /etc/localtime:/etc/localtime:ro # Sync timezone
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - TZ=America/New_York # Set your timezone
+    restart: unless-stopped
+    networks:
+      - yugioh_network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: yugioh_frontend
+    ports:
+      - "80:80"
+      - "443:443" # For HTTPS if needed
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - yugioh_network
+    environment:
+      - TZ=America/New_York # Set your timezone
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  yugioh_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  yugioh_database:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/data/yugioh/database
+  yugioh_images:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/data/yugioh/images

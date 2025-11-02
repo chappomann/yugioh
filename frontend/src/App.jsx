@@ -472,40 +472,6 @@ function App() {
                             />
 
                             <Stack spacing={2}>
-                                <HStack wrap="wrap" spacing={2}>
-                                    {selectedCard?.type && (
-                                        <Badge colorScheme="blue" fontSize="md">{selectedCard.type}</Badge>
-                                    )}
-                                    {selectedCard?.race && (
-                                        <Badge colorScheme="green" fontSize="md">{selectedCard.race}</Badge>
-                                    )}
-                                    {selectedCard?.attribute && (
-                                        <Badge colorScheme="purple" fontSize="md">{selectedCard.attribute}</Badge>
-                                    )}
-                                </HStack>
-
-                                {selectedCard?.level && (
-                                    <Text><strong>Level:</strong> {selectedCard.level}</Text>
-                                )}
-
-                                {(selectedCard?.atk !== undefined || selectedCard?.def !== undefined) && (
-                                    <HStack>
-                                        <Text><strong>ATK:</strong> {selectedCard.atk ?? '?'}</Text>
-                                        <Text><strong>DEF:</strong> {selectedCard.def ?? '?'}</Text>
-                                    </HStack>
-                                )}
-
-                                {selectedCard?.archetype && (
-                                    <Text><strong>Archetype:</strong> {selectedCard.archetype}</Text>
-                                )}
-
-                                {selectedCard?.desc && (
-                                    <Box>
-                                        <Text fontWeight="bold">Description:</Text>
-                                        <Text fontSize="sm">{selectedCard.desc}</Text>
-                                    </Box>
-                                )}
-
                                 {/* Quantity Controls */}
                                 <Box borderWidth="2px" borderRadius="lg" p={4} borderColor="orange.400">
                                     <VStack spacing={3}>
