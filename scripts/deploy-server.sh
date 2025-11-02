@@ -174,3 +174,7 @@ echo "  Logs:    cd $DEPLOY_DIR && $COMPOSE_CMD -f $COMPOSE_FILE logs -f"
 
 log "📚 Data is stored in: $DATA_DIR"
 log "🔄 To update: cd $DEPLOY_DIR && git pull && $COMPOSE_CMD -f $COMPOSE_FILE up -d --build"
+
+echo ""
+log "📥 Optional: Download card images (this may take a while and use significant space):"
+echo "  cd $DEPLOY_DIR && $COMPOSE_CMD -f $COMPOSE_FILE exec backend npm run get-images"
