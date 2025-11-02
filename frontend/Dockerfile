@@ -27,10 +27,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Remove default nginx config if it exists
 RUN rm -f /etc/nginx/conf.d/default.conf.bak
 
-# Create nginx user and set permissions
-RUN adduser -D -S -h /var/cache/nginx -s /sbin/nologin nginx && \
-    chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /var/cache/nginx
+# Set proper permissions (nginx user already exists in nginx:alpine)
+RUN chown -R nginx:nginx /usr/share/nginx/html
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
