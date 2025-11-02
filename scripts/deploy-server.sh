@@ -140,36 +140,12 @@ sudo tee /etc/logrotate.d/yugioh > /dev/null <<EOF
 }
 EOF
 
-# Create systemd service for auto-start
-log "⚙️ Creating systemd service..."
-sudo tee /etc/systemd/system/yugioh.service > /dev/null <<EOF
-[Unit]
-Description=Yu-Gi-Oh Collection Manager
-Requires=docker.service
-After=docker.service
-
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-WorkingDirectory=$DEPLOY_DIR
-ExecStart=$COMPOSE_CMD -f $COMPOSE_FILE up -d
-ExecStop=$COMPOSE_CMD -f $COMPOSE_FILE down
-TimeoutStartSec=0
-User=$USER
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable yugioh
-
 log "✅ Deployment completed successfully!"
 log "🔧 Management commands:"
-echo "  Start:   sudo systemctl start yugioh"
-echo "  Stop:    sudo systemctl stop yugioh"
-echo "  Restart: sudo systemctl restart yugioh"
-echo "  Status:  sudo systemctl status yugioh"
+echo "  Start:   cd $DEPLOY_DIR && $COMPOSE_CMD -f $COMPOSE_FILE up -d"
+echo "  Stop:    cd $DEPLOY_DIR && $COMPOSE_CMD -f $COMPOSE_FILE down"
+echo "  Restart: cd $DEPLOY_DIR && $COMPOSE_CMD -f $COMPOSE_FILE restart"
+echo "  Status:  cd $DEPLOY_DIR && $COMPOSE_CMD -f $COMPOSE_FILE ps"
 echo "  Logs:    cd $DEPLOY_DIR && $COMPOSE_CMD -f $COMPOSE_FILE logs -f"
 
 log "📚 Data is stored in: $DATA_DIR"
