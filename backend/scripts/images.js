@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const YUGIOH_CARD_DATA_JSON = './database/yugioh_card_data.json';
-const IMAGES_DIR = '../../frontend/public/images/cards';
+const IMAGES_DIR = './images/cards';
 
 async function downloadImage(url, filepath) {
     return new Promise((resolve, reject) => {

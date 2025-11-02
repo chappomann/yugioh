@@ -43,6 +43,8 @@ services:
     ports:
       - "80:80"
       - "443:443" # For HTTPS if needed
+    volumes:
+      - yugioh_images:/usr/share/nginx/html/images # Share images with backend
     depends_on:
       backend:
         condition: service_healthy
