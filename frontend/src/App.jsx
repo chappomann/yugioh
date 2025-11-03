@@ -45,6 +45,7 @@ function App() {
         race: '',
         attribute: '',
         level: '',
+        owned: '',
     });
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedCard, setSelectedCard] = useState(null);
@@ -117,6 +118,14 @@ function App() {
             result = result.filter(card => card.level == filters.level);
         }
 
+        if (filters.owned) {
+            if (filters.owned === 'owned') {
+                result = result.filter(card => (card.quantity || 0) > 0);
+            } else if (filters.owned === 'not-owned') {
+                result = result.filter(card => (card.quantity || 0) === 0);
+            }
+        }
+
         setFilteredCards(result);
         setCurrentPage(1); // Reset to first page when filters change
     }, [searchName, filters, cards]);
@@ -127,7 +136,7 @@ function App() {
 
     const clearFilters = () => {
         setSearchName('');
-        setFilters({ type: '', race: '', attribute: '', level: '' });
+        setFilters({ type: '', race: '', attribute: '', level: '', owned: '' });
     };
 
     const handleCardClick = (card) => {
@@ -300,6 +309,15 @@ function App() {
                                         {metadata.levels?.map(level => (
                                             <option key={level} value={level}>Level {level}</option>
                                         ))}
+                                    </Select>
+
+                                    <Select
+                                        placeholder="Filter by Ownership"
+                                        value={filters.owned}
+                                        onChange={(e) => handleFilterChange('owned', e.target.value)}
+                                    >
+                                        <option value="owned">Owned Only</option>
+                                        <option value="not-owned">Not Owned</option>
                                     </Select>
                                 </Grid>
 
