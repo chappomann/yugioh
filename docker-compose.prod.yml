@@ -16,7 +16,7 @@ services:
       - TZ=America/New_York # Set your timezone
     restart: unless-stopped
     networks:
-      immich_net:
+      docker_immich_net:
         ipv4_address: 172.25.0.17
     healthcheck:
       test:
@@ -51,7 +51,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      immich_net:
+      docker_immich_net:
         ipv4_address: 172.25.0.18
     environment:
       - TZ=America/New_York # Set your timezone
@@ -76,7 +76,7 @@ services:
         max-file: "3"
 
 networks:
-  immich_net:
+  docker_immich_net:
     external: true
 
 volumes:
