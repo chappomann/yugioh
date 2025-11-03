@@ -204,30 +204,48 @@ app.get('/api/cards/filter', (req, res) => {
 
     let filtered = [...cardsData];
 
+    // Helper function to handle both single values and arrays
+    const normalizeParam = (param) => {
+        if (!param) return null;
+        return Array.isArray(param) ? param : [param];
+    };
+
     // Filter by type (e.g., "Monster", "Spell", "Trap")
     if (type) {
+        const types = normalizeParam(type);
         filtered = filtered.filter(card =>
-            card.type && card.type.toLowerCase().includes(type.toLowerCase())
+            card.type && types.some(t =>
+                card.type.toLowerCase().includes(t.toLowerCase())
+            )
         );
     }
 
     // Filter by race (e.g., "Dragon", "Warrior", "Spellcaster")
     if (race) {
+        const races = normalizeParam(race);
         filtered = filtered.filter(card =>
-            card.race && card.race.toLowerCase() === race.toLowerCase()
+            card.race && races.some(r =>
+                card.race.toLowerCase() === r.toLowerCase()
+            )
         );
     }
 
     // Filter by attribute (e.g., "DARK", "LIGHT", "FIRE")
     if (attribute) {
+        const attributes = normalizeParam(attribute);
         filtered = filtered.filter(card =>
-            card.attribute && card.attribute.toLowerCase() === attribute.toLowerCase()
+            card.attribute && attributes.some(a =>
+                card.attribute.toLowerCase() === a.toLowerCase()
+            )
         );
     }
 
     // Filter by level
     if (level) {
-        filtered = filtered.filter(card => card.level == level);
+        const levels = normalizeParam(level);
+        filtered = filtered.filter(card =>
+            card.level && levels.some(l => card.level == l)
+        );
     }
 
     // Filter by ATK

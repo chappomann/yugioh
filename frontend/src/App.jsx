@@ -4,7 +4,6 @@ import {
     Container,
     Heading,
     Input,
-    Select,
     Grid,
     Card,
     CardBody,
@@ -28,8 +27,11 @@ import {
     ModalBody,
     ModalCloseButton,
     useDisclosure,
+    CheckboxGroup,
+    Checkbox,
+    Collapse,
 } from '@chakra-ui/react';
-import { ChevronLeftIcon, ChevronRightIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
+import { ChevronLeftIcon, ChevronRightIcon, AddIcon, MinusIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import axios from 'axios';
 
 const CARDS_PER_PAGE = 100;
@@ -41,11 +43,23 @@ function App() {
     const [searchName, setSearchName] = useState('');
     const [metadata, setMetadata] = useState({});
     const [filters, setFilters] = useState({
+        type: [],
+        race: [],
+        attribute: [],
+        level: [],
+        owned: '',
+    });
+    const [showFilters, setShowFilters] = useState({
+        type: false,
+        race: false,
+        attribute: false,
+        level: false,
+    });
+    const [filterSearch, setFilterSearch] = useState({
         type: '',
         race: '',
         attribute: '',
         level: '',
-        owned: '',
     });
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedCard, setSelectedCard] = useState(null);
@@ -96,26 +110,34 @@ function App() {
             );
         }
 
-        if (filters.type) {
+        if (filters.type && filters.type.length > 0) {
             result = result.filter(card =>
-                card.type?.toLowerCase().includes(filters.type.toLowerCase())
+                card.type && filters.type.some(t =>
+                    card.type.toLowerCase().includes(t.toLowerCase())
+                )
             );
         }
 
-        if (filters.race) {
+        if (filters.race && filters.race.length > 0) {
             result = result.filter(card =>
-                card.race?.toLowerCase() === filters.race.toLowerCase()
+                card.race && filters.race.some(r =>
+                    card.race.toLowerCase() === r.toLowerCase()
+                )
             );
         }
 
-        if (filters.attribute) {
+        if (filters.attribute && filters.attribute.length > 0) {
             result = result.filter(card =>
-                card.attribute?.toLowerCase() === filters.attribute.toLowerCase()
+                card.attribute && filters.attribute.some(a =>
+                    card.attribute.toLowerCase() === a.toLowerCase()
+                )
             );
         }
 
-        if (filters.level) {
-            result = result.filter(card => card.level == filters.level);
+        if (filters.level && filters.level.length > 0) {
+            result = result.filter(card =>
+                card.level && filters.level.some(l => card.level == l)
+            );
         }
 
         if (filters.owned) {
@@ -131,12 +153,37 @@ function App() {
     }, [searchName, filters, cards]);
 
     const handleFilterChange = (field, value) => {
-        setFilters(prev => ({ ...prev, [field]: value }));
+        if (field === 'owned') {
+            setFilters(prev => ({ ...prev, [field]: value }));
+        } else {
+            setFilters(prev => ({ ...prev, [field]: value }));
+        }
     };
 
     const clearFilters = () => {
         setSearchName('');
-        setFilters({ type: '', race: '', attribute: '', level: '', owned: '' });
+        setFilters({ type: [], race: [], attribute: [], level: [], owned: '' });
+        setFilterSearch({ type: '', race: '', attribute: '', level: '' });
+    };
+
+    const toggleFilterSection = (section) => {
+        setShowFilters(prev => ({ ...prev, [section]: !prev[section] }));
+    };
+
+    const handleFilterSearch = (category, value) => {
+        setFilterSearch(prev => ({ ...prev, [category]: value }));
+    };
+
+    const getFilteredOptions = (category, options) => {
+        const searchTerm = filterSearch[category].toLowerCase();
+        if (!searchTerm) return options;
+        return options.filter(option =>
+            option.toString().toLowerCase().includes(searchTerm)
+        );
+    };
+
+    const getActiveFilterCount = () => {
+        return filters.type.length + filters.race.length + filters.attribute.length + filters.level.length + (filters.owned ? 1 : 0);
     };
 
     const handleCardClick = (card) => {
@@ -270,60 +317,170 @@ function App() {
                                     size="lg"
                                 />
 
-                                <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4}>
-                                    <Select
-                                        placeholder="Filter by Type"
-                                        value={filters.type}
-                                        onChange={(e) => handleFilterChange('type', e.target.value)}
-                                    >
-                                        {metadata.types?.map(type => (
-                                            <option key={type} value={type}>{type}</option>
-                                        ))}
-                                    </Select>
+                                <Grid templateColumns="repeat(auto-fit, minmax(250px, 1fr))" gap={4}>
+                                    {/* Type Filter */}
+                                    <Box>
+                                        <Button
+                                            w="100%"
+                                            justifyContent="space-between"
+                                            rightIcon={showFilters.type ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                                            onClick={() => toggleFilterSection('type')}
+                                            variant="outline"
+                                            colorScheme={filters.type.length > 0 ? "blue" : "gray"}
+                                        >
+                                            Type {filters.type.length > 0 && `(${filters.type.length})`}
+                                        </Button>
+                                        <Collapse in={showFilters.type}>
+                                            <Box mt={2} p={3} borderWidth="1px" borderRadius="md" maxH="250px" overflowY="auto">
+                                                <Input
+                                                    placeholder="Search types..."
+                                                    value={filterSearch.type}
+                                                    onChange={(e) => handleFilterSearch('type', e.target.value)}
+                                                    size="sm"
+                                                    mb={3}
+                                                />
+                                                <CheckboxGroup
+                                                    value={filters.type}
+                                                    onChange={(value) => handleFilterChange('type', value)}
+                                                >
+                                                    <VStack align="start" spacing={2}>
+                                                        {getFilteredOptions('type', metadata.types || []).map(type => (
+                                                            <Checkbox key={type} value={type}>{type}</Checkbox>
+                                                        ))}
+                                                    </VStack>
+                                                </CheckboxGroup>
+                                            </Box>
+                                        </Collapse>
+                                    </Box>
 
-                                    <Select
-                                        placeholder="Filter by Race"
-                                        value={filters.race}
-                                        onChange={(e) => handleFilterChange('race', e.target.value)}
-                                    >
-                                        {metadata.races?.map(race => (
-                                            <option key={race} value={race}>{race}</option>
-                                        ))}
-                                    </Select>
+                                    {/* Race Filter */}
+                                    <Box>
+                                        <Button
+                                            w="100%"
+                                            justifyContent="space-between"
+                                            rightIcon={showFilters.race ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                                            onClick={() => toggleFilterSection('race')}
+                                            variant="outline"
+                                            colorScheme={filters.race.length > 0 ? "green" : "gray"}
+                                        >
+                                            Race {filters.race.length > 0 && `(${filters.race.length})`}
+                                        </Button>
+                                        <Collapse in={showFilters.race}>
+                                            <Box mt={2} p={3} borderWidth="1px" borderRadius="md" maxH="250px" overflowY="auto">
+                                                <Input
+                                                    placeholder="Search races..."
+                                                    value={filterSearch.race}
+                                                    onChange={(e) => handleFilterSearch('race', e.target.value)}
+                                                    size="sm"
+                                                    mb={3}
+                                                />
+                                                <CheckboxGroup
+                                                    value={filters.race}
+                                                    onChange={(value) => handleFilterChange('race', value)}
+                                                >
+                                                    <VStack align="start" spacing={2}>
+                                                        {getFilteredOptions('race', metadata.races || []).map(race => (
+                                                            <Checkbox key={race} value={race}>{race}</Checkbox>
+                                                        ))}
+                                                    </VStack>
+                                                </CheckboxGroup>
+                                            </Box>
+                                        </Collapse>
+                                    </Box>
 
-                                    <Select
-                                        placeholder="Filter by Attribute"
-                                        value={filters.attribute}
-                                        onChange={(e) => handleFilterChange('attribute', e.target.value)}
-                                    >
-                                        {metadata.attributes?.map(attr => (
-                                            <option key={attr} value={attr}>{attr}</option>
-                                        ))}
-                                    </Select>
+                                    {/* Attribute Filter */}
+                                    <Box>
+                                        <Button
+                                            w="100%"
+                                            justifyContent="space-between"
+                                            rightIcon={showFilters.attribute ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                                            onClick={() => toggleFilterSection('attribute')}
+                                            variant="outline"
+                                            colorScheme={filters.attribute.length > 0 ? "purple" : "gray"}
+                                        >
+                                            Attribute {filters.attribute.length > 0 && `(${filters.attribute.length})`}
+                                        </Button>
+                                        <Collapse in={showFilters.attribute}>
+                                            <Box mt={2} p={3} borderWidth="1px" borderRadius="md" maxH="250px" overflowY="auto">
+                                                <Input
+                                                    placeholder="Search attributes..."
+                                                    value={filterSearch.attribute}
+                                                    onChange={(e) => handleFilterSearch('attribute', e.target.value)}
+                                                    size="sm"
+                                                    mb={3}
+                                                />
+                                                <CheckboxGroup
+                                                    value={filters.attribute}
+                                                    onChange={(value) => handleFilterChange('attribute', value)}
+                                                >
+                                                    <VStack align="start" spacing={2}>
+                                                        {getFilteredOptions('attribute', metadata.attributes || []).map(attr => (
+                                                            <Checkbox key={attr} value={attr}>{attr}</Checkbox>
+                                                        ))}
+                                                    </VStack>
+                                                </CheckboxGroup>
+                                            </Box>
+                                        </Collapse>
+                                    </Box>
 
-                                    <Select
-                                        placeholder="Filter by Level"
-                                        value={filters.level}
-                                        onChange={(e) => handleFilterChange('level', e.target.value)}
-                                    >
-                                        {metadata.levels?.map(level => (
-                                            <option key={level} value={level}>Level {level}</option>
-                                        ))}
-                                    </Select>
+                                    {/* Level Filter */}
+                                    <Box>
+                                        <Button
+                                            w="100%"
+                                            justifyContent="space-between"
+                                            rightIcon={showFilters.level ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                                            onClick={() => toggleFilterSection('level')}
+                                            variant="outline"
+                                            colorScheme={filters.level.length > 0 ? "orange" : "gray"}
+                                        >
+                                            Level {filters.level.length > 0 && `(${filters.level.length})`}
+                                        </Button>
+                                        <Collapse in={showFilters.level}>
+                                            <Box mt={2} p={3} borderWidth="1px" borderRadius="md" maxH="250px" overflowY="auto">
+                                                <Input
+                                                    placeholder="Search levels..."
+                                                    value={filterSearch.level}
+                                                    onChange={(e) => handleFilterSearch('level', e.target.value)}
+                                                    size="sm"
+                                                    mb={3}
+                                                />
+                                                <CheckboxGroup
+                                                    value={filters.level.map(String)}
+                                                    onChange={(value) => handleFilterChange('level', value.map(Number))}
+                                                >
+                                                    <VStack align="start" spacing={2}>
+                                                        {getFilteredOptions('level', metadata.levels || []).map(level => (
+                                                            <Checkbox key={level} value={String(level)}>Level {level}</Checkbox>
+                                                        ))}
+                                                    </VStack>
+                                                </CheckboxGroup>
+                                            </Box>
+                                        </Collapse>
+                                    </Box>
 
-                                    <Select
-                                        placeholder="Filter by Ownership"
-                                        value={filters.owned}
-                                        onChange={(e) => handleFilterChange('owned', e.target.value)}
-                                    >
-                                        <option value="owned">Owned Only</option>
-                                        <option value="not-owned">Not Owned</option>
-                                    </Select>
+                                    {/* Ownership Filter - Keep as single select */}
+                                    <Box>
+                                        <Text fontSize="sm" fontWeight="medium" mb={2}>Ownership</Text>
+                                        <VStack align="start" spacing={2}>
+                                            <Checkbox
+                                                isChecked={filters.owned === 'owned'}
+                                                onChange={(e) => handleFilterChange('owned', e.target.checked ? 'owned' : '')}
+                                            >
+                                                Owned Only
+                                            </Checkbox>
+                                            <Checkbox
+                                                isChecked={filters.owned === 'not-owned'}
+                                                onChange={(e) => handleFilterChange('owned', e.target.checked ? 'not-owned' : '')}
+                                            >
+                                                Not Owned
+                                            </Checkbox>
+                                        </VStack>
+                                    </Box>
                                 </Grid>
 
                                 <HStack justify="space-between" wrap="wrap">
                                     <Button onClick={clearFilters} colorScheme="red" variant="outline">
-                                        Clear Filters
+                                        Clear All Filters {getActiveFilterCount() > 0 && `(${getActiveFilterCount()})`}
                                     </Button>
                                     <Text fontSize="sm" color="gray.600">
                                         Showing {startIndex + 1}-{Math.min(endIndex, filteredCards.length)} of {filteredCards.length} cards
