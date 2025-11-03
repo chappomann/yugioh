@@ -11,6 +11,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const CARDS_FILE = path.join(__dirname, 'database', 'yugioh_card_data.json');
+const DECKS_FILE = path.join(__dirname, 'database', 'decks.json');
 
 // Middleware
 app.use(express.json());
@@ -21,6 +22,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Load cards data
 let cardsData = [];
+let decksData = [];
 
 // Load cards data
 async function loadCards() {
@@ -63,8 +65,48 @@ async function saveCards() {
     }
 }
 
-// Load cards on startup
+// Load decks data
+async function loadDecks() {
+    try {
+        // Ensure database directory exists
+        const dbDir = path.dirname(DECKS_FILE);
+        await fs.mkdir(dbDir, { recursive: true });
+
+        const data = await fs.readFile(DECKS_FILE, 'utf8');
+        decksData = JSON.parse(data);
+        console.log(`✅ Loaded ${decksData.length} decks`);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            console.log('⚠️ Decks file not found, starting with empty array');
+            decksData = [];
+        } else {
+            console.error('❌ Error loading decks:', error);
+            decksData = [];
+        }
+    }
+}
+
+// Save decks data to file
+async function saveDecks() {
+    try {
+        console.log(`💾 Attempting to save ${decksData.length} decks to ${DECKS_FILE}`);
+
+        // Ensure database directory exists
+        const dbDir = path.dirname(DECKS_FILE);
+        await fs.mkdir(dbDir, { recursive: true });
+
+        await fs.writeFile(DECKS_FILE, JSON.stringify(decksData, null, 2), 'utf8');
+        console.log(`✅ Successfully saved ${decksData.length} decks`);
+        return true;
+    } catch (error) {
+        console.error('❌ Error saving decks:', error);
+        console.error('❌ File path:', DECKS_FILE);
+        console.error('❌ Error details:', error.message);
+        return false;
+    }
+}// Load cards on startup
 await loadCards();
+await loadDecks();
 
 // Route: Get all cards
 app.get('/api/cards', (req, res) => {
@@ -310,6 +352,165 @@ app.get('/api/cards/metadata', (req, res) => {
     });
 });
 
+// ========== DECK ROUTES ==========
+
+// Route: Get all decks
+app.get('/api/decks', (req, res) => {
+    res.json({
+        total: decksData.length,
+        decks: decksData
+    });
+});
+
+// Route: Get deck by ID
+app.get('/api/decks/:id', (req, res) => {
+    const deck = decksData.find(d => d.id === req.params.id);
+    if (deck) {
+        res.json(deck);
+    } else {
+        res.status(404).json({ error: 'Deck not found' });
+    }
+});
+
+// Route: Create new deck
+// Create a new deck
+app.post('/api/decks', (req, res) => {
+    try {
+        const { name, description, cards } = req.body;
+
+        if (!name || !name.trim()) {
+            return res.status(400).json({ error: 'Deck name is required' });
+        }
+
+        const newDeck = {
+            id: Date.now().toString(),
+            name: name.trim(),
+            description: description || '',
+            cards: cards || [], // Array of {cardId, quantity, category}
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+
+        decksData.push(newDeck);
+        saveDecks();
+
+        res.status(201).json({
+            message: 'Deck created successfully',
+            deck: newDeck
+        });
+    } catch (error) {
+        console.error('Error creating deck:', error);
+        res.status(500).json({ error: 'Failed to create deck' });
+    }
+});
+
+// Route: Update deck
+app.put('/api/decks/:id', async (req, res) => {
+    try {
+        const { name, description, cards } = req.body;
+        const deckIndex = decksData.findIndex(d => d.id === req.params.id);
+
+        if (deckIndex === -1) {
+            return res.status(404).json({ error: 'Deck not found' });
+        }
+
+        // Update deck properties
+        if (name !== undefined) decksData[deckIndex].name = name;
+        if (description !== undefined) decksData[deckIndex].description = description;
+        if (cards !== undefined) decksData[deckIndex].cards = cards;
+        decksData[deckIndex].updatedAt = new Date().toISOString();
+
+        const saved = await saveDecks();
+
+        if (saved) {
+            res.json({
+                success: true,
+                deck: decksData[deckIndex]
+            });
+        } else {
+            res.status(500).json({ error: 'Failed to save deck changes' });
+        }
+    } catch (error) {
+        console.error('Error updating deck:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Route: Delete deck
+app.delete('/api/decks/:id', async (req, res) => {
+    try {
+        const deckIndex = decksData.findIndex(d => d.id === req.params.id);
+
+        if (deckIndex === -1) {
+            return res.status(404).json({ error: 'Deck not found' });
+        }
+
+        const deletedDeck = decksData.splice(deckIndex, 1)[0];
+        const saved = await saveDecks();
+
+        if (saved) {
+            res.json({
+                success: true,
+                message: 'Deck deleted successfully',
+                deck: deletedDeck
+            });
+        } else {
+            res.status(500).json({ error: 'Failed to save changes' });
+        }
+    } catch (error) {
+        console.error('Error deleting deck:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Route: Get deck with populated card details
+app.get('/api/decks/:id/cards', (req, res) => {
+    const deck = decksData.find(d => d.id === req.params.id);
+    if (!deck) {
+        return res.status(404).json({ error: 'Deck not found' });
+    }
+
+    // Handle both old format (cardIds array) and new format (cards array with quantities)
+    let deckCards = [];
+
+    if (deck.cards && Array.isArray(deck.cards)) {
+        // New format: {cardId, quantity}
+        deckCards = deck.cards.map(cardEntry => {
+            const card = cardsData.find(card => card.id == cardEntry.cardId);
+            if (card) {
+                // Keep the original card.quantity (owned quantity) under ownedQuantity
+                // and use quantity for the deck-needed amount to preserve existing frontend behavior.
+                return {
+                    ...card,
+                    ownedQuantity: card.quantity || 0,
+                    quantity: cardEntry.quantity || 1,
+                    category: cardEntry.category || 'main' // default to main deck
+                };
+            }
+            return null;
+        }).filter(Boolean);
+    } else if (deck.cardIds && Array.isArray(deck.cardIds)) {
+        // Old format: array of cardIds - migrate to new format
+        deckCards = deck.cardIds.map(cardId => {
+            const card = cardsData.find(card => card.id == cardId);
+            if (card) {
+                return {
+                    ...card,
+                    ownedQuantity: card.quantity || 0,
+                    quantity: 1,
+                    category: 'main' // default to main deck for old format
+                };
+            }
+            return null;
+        }).filter(Boolean);
+    }
+
+    res.json({
+        ...deck,
+        cards: deckCards
+    });
+});
+
 // Route: Home
 app.get('/', (req, res) => {
     res.send(`
@@ -325,6 +526,13 @@ app.get('/', (req, res) => {
             <li>GET /api/cards/filter?type=Monster&race=Dragon - Filter by attributes</li>
             <li>GET /api/cards/owned - Get cards you own (quantity > 0)</li>
             <li>GET /api/cards/metadata - Get unique values for filters</li>
+            <br>
+            <li>GET /api/decks - Get all decks</li>
+            <li>GET /api/decks/:id - Get deck by ID</li>
+            <li>POST /api/decks - Create new deck</li>
+            <li>PUT /api/decks/:id - Update deck</li>
+            <li>DELETE /api/decks/:id - Delete deck</li>
+            <li>GET /api/decks/:id/cards - Get deck with populated card details</li>
         </ul>
     `);
 });

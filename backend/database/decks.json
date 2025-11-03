@@ -1,0 +1,410 @@
+[
+  {
+    "id": "1762133910999",
+    "name": "blue-eyes primate",
+    "description": "blue-eyes and primate deck feb-2025",
+    "cards": [
+      {
+        "cardId": 89631139,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 30576089,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 8240199,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 17947697,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 63198739,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 27204311,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 14558127,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 97268402,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 59438930,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 10045474,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 97045737,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 24382602,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 17725109,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 29095457,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 56506740,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 80326401,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 62089826,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 43219114,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 40908371,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 8728498,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 24361622,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 42097666,
+        "quantity": 2,
+        "category": "side"
+      },
+      {
+        "cardId": 59822133,
+        "quantity": 3,
+        "category": "side"
+      },
+      {
+        "cardId": 89604813,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 10515412,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 63436931,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 21123811,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 11443677,
+        "quantity": 2,
+        "category": "side"
+      },
+      {
+        "cardId": 56532353,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 41420027,
+        "quantity": 3,
+        "category": "extra"
+      },
+      {
+        "cardId": 82732705,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 71143015,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 84211599,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 18144507,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 73642296,
+        "quantity": 2,
+        "category": "extra"
+      },
+      {
+        "cardId": 34267821,
+        "quantity": 3,
+        "category": "extra"
+      },
+      {
+        "cardId": 87126721,
+        "quantity": 3,
+        "category": "extra"
+      }
+    ],
+    "createdAt": "2025-11-03T01:38:30.999Z",
+    "updatedAt": "2025-11-03T01:44:10.878Z"
+  },
+  {
+    "id": "1762138520896",
+    "name": "dark world",
+    "description": "dark world 1/25",
+    "cards": [
+      {
+        "cardId": 28674152,
+        "quantity": 2,
+        "category": "side"
+      },
+      {
+        "cardId": 33731070,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 27204311,
+        "quantity": 2,
+        "category": "side"
+      },
+      {
+        "cardId": 18144507,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 24224830,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 70368879,
+        "quantity": 1,
+        "category": "side"
+      },
+      {
+        "cardId": 83326048,
+        "quantity": 2,
+        "category": "side"
+      },
+      {
+        "cardId": 14532163,
+        "quantity": 2,
+        "category": "side"
+      },
+      {
+        "cardId": 39552584,
+        "quantity": 3,
+        "category": "extra"
+      },
+      {
+        "cardId": 66011101,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 10666000,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 30741334,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 63767246,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 90590303,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 74997493,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 65330383,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 71607202,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 98127546,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 71818935,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 18963306,
+        "quantity": 1,
+        "category": "extra"
+      },
+      {
+        "cardId": 41406613,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 34230233,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 32619583,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 60228941,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 77895328,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 79126789,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 7623640,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 40460013,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 70711847,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 43316238,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 52350806,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 99745551,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 43694650,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 33017655,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 65956182,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 98696958,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 76672730,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 1475311,
+        "quantity": 3,
+        "category": "main"
+      },
+      {
+        "cardId": 70368879,
+        "quantity": 2,
+        "category": "main"
+      },
+      {
+        "cardId": 72892473,
+        "quantity": 1,
+        "category": "main"
+      },
+      {
+        "cardId": 82732705,
+        "quantity": 1,
+        "category": "main"
+      }
+    ],
+    "createdAt": "2025-11-03T02:55:20.896Z",
+    "updatedAt": "2025-11-03T02:55:20.896Z"
+  }
+]
