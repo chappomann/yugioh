@@ -22,24 +22,43 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 // Load cards data
 let cardsData = [];
 
+// Load cards data
 async function loadCards() {
     try {
+        // Ensure database directory exists
+        const dbDir = path.dirname(CARDS_FILE);
+        await fs.mkdir(dbDir, { recursive: true });
+
         const data = await fs.readFile(CARDS_FILE, 'utf8');
         cardsData = JSON.parse(data);
         console.log(`✅ Loaded ${cardsData.length} cards`);
     } catch (error) {
-        console.error('❌ Error loading cards:', error);
+        if (error.code === 'ENOENT') {
+            console.log('⚠️ Cards file not found, starting with empty array');
+            cardsData = [];
+        } else {
+            console.error('❌ Error loading cards:', error);
+            cardsData = [];
+        }
     }
 }
 
 // Save cards data to file
 async function saveCards() {
     try {
+        console.log(`💾 Attempting to save ${cardsData.length} cards to ${CARDS_FILE}`);
+
+        // Ensure database directory exists
+        const dbDir = path.dirname(CARDS_FILE);
+        await fs.mkdir(dbDir, { recursive: true });
+
         await fs.writeFile(CARDS_FILE, JSON.stringify(cardsData, null, 2), 'utf8');
-        console.log(`💾 Saved ${cardsData.length} cards`);
+        console.log(`✅ Successfully saved ${cardsData.length} cards`);
         return true;
     } catch (error) {
         console.error('❌ Error saving cards:', error);
+        console.error('❌ File path:', CARDS_FILE);
+        console.error('❌ Error details:', error.message);
         return false;
     }
 }
@@ -67,32 +86,38 @@ app.get('/api/cards/id/:id', (req, res) => {
 
 // Route: Update card quantity
 app.put('/api/cards/:id/quantity', async (req, res) => {
-    const cardId = req.params.id;
-    const { quantity } = req.body;
+    try {
+        const cardId = req.params.id;
+        const { quantity } = req.body;
 
-    if (quantity === undefined || typeof quantity !== 'number' || quantity < 0) {
-        return res.status(400).json({ error: 'Invalid quantity. Must be a non-negative number.' });
-    }
+        if (quantity === undefined || typeof quantity !== 'number' || quantity < 0) {
+            return res.status(400).json({ error: 'Invalid quantity. Must be a non-negative number.' });
+        }
 
-    const cardIndex = cardsData.findIndex(c => c.id == cardId);
+        const cardIndex = cardsData.findIndex(c => c.id == cardId);
 
-    if (cardIndex === -1) {
-        return res.status(404).json({ error: 'Card not found' });
-    }
+        if (cardIndex === -1) {
+            return res.status(404).json({ error: 'Card not found' });
+        }
 
-    // Update the quantity
-    cardsData[cardIndex].quantity = quantity;
+        // Update the quantity
+        cardsData[cardIndex].quantity = quantity;
 
-    // Save to file
-    const saved = await saveCards();
+        // Save to file
+        const saved = await saveCards();
 
-    if (saved) {
-        res.json({
-            success: true,
-            card: cardsData[cardIndex]
-        });
-    } else {
-        res.status(500).json({ error: 'Failed to save changes' });
+        if (saved) {
+            res.json({
+                success: true,
+                card: cardsData[cardIndex]
+            });
+        } else {
+            console.error(`Failed to save quantity update for card ${cardId}`);
+            res.status(500).json({ error: 'Failed to save changes' });
+        }
+    } catch (error) {
+        console.error('Error in PUT /api/cards/:id/quantity:', error);
+        res.status(500).json({ error: 'Internal server error', details: error.message });
     }
 });
 
