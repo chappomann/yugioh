@@ -247,7 +247,7 @@ function App() {
                 <VStack spacing={8} align="stretch">
                     {/* Header */}
                     <Heading size="2xl" textAlign="center" color="blue.600">
-                        Yu-Gi-Oh! Card Collection
+                        Yu-Gi-Oh! Database
                     </Heading>
 
                     {/* Filters */}
