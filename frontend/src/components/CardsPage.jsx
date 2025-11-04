@@ -135,7 +135,8 @@ function CardsPage() {
 
         if (filters.level && filters.level.length > 0) {
             result = result.filter(card =>
-                card.level && filters.level.some(l => card.level == l)
+                (card.level && filters.level.some(l => card.level == l)) ||
+                (card.linkval && filters.level.some(l => card.linkval == l))
             );
         }
 
@@ -425,12 +426,12 @@ function CardsPage() {
                                     variant="outline"
                                     colorScheme={filters.level.length > 0 ? "orange" : "gray"}
                                 >
-                                    Level {filters.level.length > 0 && `(${filters.level.length})`}
+                                    Level/Link {filters.level.length > 0 && `(${filters.level.length})`}
                                 </Button>
                                 <Collapse in={showFilters.level}>
                                     <Box mt={2} p={3} borderWidth="1px" borderRadius="md" maxH="250px" overflowY="auto">
                                         <Input
-                                            placeholder="Search levels..."
+                                            placeholder="Search levels/links..."
                                             value={filterSearch.level}
                                             onChange={(e) => handleFilterSearch('level', e.target.value)}
                                             size="sm"
@@ -441,9 +442,26 @@ function CardsPage() {
                                             onChange={(value) => handleFilterChange('level', value.map(Number))}
                                         >
                                             <VStack align="start" spacing={2}>
-                                                {getFilteredOptions('level', metadata.levels || []).map(level => (
-                                                    <Checkbox key={level} value={String(level)}>Level {level}</Checkbox>
-                                                ))}
+                                                {getFilteredOptions('level', metadata.levels || []).map(level => {
+                                                    // Check if this value appears as level or linkval (or both) in the cards
+                                                    const hasLevel = cards.some(card => card.level === level);
+                                                    const hasLink = cards.some(card => card.linkval === level);
+                                                    
+                                                    let label = '';
+                                                    if (hasLevel && hasLink) {
+                                                        label = `Level/Link ${level}`;
+                                                    } else if (hasLevel) {
+                                                        label = `Level ${level}`;
+                                                    } else if (hasLink) {
+                                                        label = `Link ${level}`;
+                                                    } else {
+                                                        label = `${level}`;
+                                                    }
+                                                    
+                                                    return (
+                                                        <Checkbox key={level} value={String(level)}>{label}</Checkbox>
+                                                    );
+                                                })}
                                             </VStack>
                                         </CheckboxGroup>
                                     </Box>
@@ -557,6 +575,10 @@ function CardsPage() {
 
                                 {card.level && (
                                     <Text fontSize="sm">Level: {card.level}</Text>
+                                )}
+
+                                {card.linkval && (
+                                    <Text fontSize="sm">Link: {card.linkval}</Text>
                                 )}
 
                                 {(card.atk !== undefined || card.def !== undefined) && (

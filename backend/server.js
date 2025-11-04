@@ -341,7 +341,11 @@ app.get('/api/cards/metadata', (req, res) => {
     const races = [...new Set(cardsData.map(c => c.race).filter(Boolean))];
     const attributes = [...new Set(cardsData.map(c => c.attribute).filter(Boolean))];
     const archetypes = [...new Set(cardsData.map(c => c.archetype).filter(Boolean))];
-    const levels = [...new Set(cardsData.map(c => c.level).filter(Boolean))].sort((a, b) => a - b);
+    
+    // Combine level and linkval values for unified level/link filtering
+    const levelValues = [...new Set(cardsData.map(c => c.level).filter(Boolean))];
+    const linkValues = [...new Set(cardsData.map(c => c.linkval).filter(Boolean))];
+    const levels = [...new Set([...levelValues, ...linkValues])].sort((a, b) => a - b);
 
     res.json({
         types,
